@@ -18,14 +18,18 @@ export interface Opportunity {
 interface OpportunityCardProps {
   opportunity: Opportunity;
   onViewDetails?: () => void;
+  onSkip?: () => void;
+  onAccept?: () => void;
 }
 
 const OpportunityCard: React.FC<OpportunityCardProps> = ({ 
   opportunity, 
-  onViewDetails 
+  onViewDetails,
+  onSkip,
+  onAccept
 }) => {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       <AspectRatio ratio={4/3} className="bg-muted">
         <img 
           src={opportunity.imageUrl || 'https://placehold.co/600x400?text=Volunteer+Opportunity'} 
@@ -66,21 +70,27 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
         
         <Button 
           variant="outline" 
-          className="w-full mb-10" /* Added bottom margin to create space for the swipe buttons */
+          className="w-full mb-10" /* Bottom margin to create space for the swipe buttons */
           onClick={onViewDetails}
         >
           View Details
         </Button>
       </div>
       
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none">
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center">
         <div className="flex gap-2">
-          <div className="bg-destructive text-destructive-foreground rounded-full px-3 py-1 text-sm font-medium opacity-70">
+          <button 
+            className="bg-destructive text-destructive-foreground rounded-full px-3 py-1 text-sm font-medium opacity-70 hover:opacity-100 transition-opacity"
+            onClick={onSkip}
+          >
             Skip
-          </div>
-          <div className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-sm font-medium opacity-70">
+          </button>
+          <button 
+            className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-sm font-medium opacity-70 hover:opacity-100 transition-opacity"
+            onClick={onAccept}
+          >
             Accept
-          </div>
+          </button>
         </div>
       </div>
     </div>

@@ -5,20 +5,95 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [userType, setUserType] = useState('volunteer');
-  const navigate = useNavigate();
+  const [userType, setUserType] = useState<'volunteer' | 'organizer'>('volunteer');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+  const { signIn, signUp } = useSupabaseAuth();
+  const { toast } = useToast();
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     
-    // Normally would handle authentication here
-    if (userType === 'organizer') {
-      navigate('/organizer/dashboard');
-    } else {
-      navigate('/home');
+    try {
+      if (isLogin) {
+        // Handle login
+        const { success, error } = await signIn({ email, password });
+        
+        if (success) {
+          toast({
+            title: "Login successful",
+            description: "Welcome back to VolunCheers!"
+          });
+          
+          if (userType === 'organizer') {
+            navigate('/organizer/dashboard');
+          } else {
+            navigate('/home');
+          }
+        } else {
+          toast({
+            title: "Login failed",
+            description: error.message,
+            variant: "destructive"
+          });
+        }
+      } else {
+        // Handle signup
+        if (!name) {
+          toast({
+            title: "Missing information",
+            description: "Please provide your full name",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
+        
+        const { success, error } = await signUp({ 
+          email, 
+          password, 
+          userType, 
+          name 
+        });
+        
+        if (success) {
+          toast({
+            title: "Account created",
+            description: "Welcome to VolunCheers!"
+          });
+          
+          if (userType === 'organizer') {
+            navigate('/organizer/dashboard');
+          } else {
+            navigate('/home');
+          }
+        } else {
+          toast({
+            title: "Signup failed",
+            description: error.message,
+            variant: "destructive"
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+      toast({
+        title: "Authentication error",
+        description: "An unexpected error occurred",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -38,7 +113,12 @@ const Auth = () => {
           <>
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" placeholder="John Doe" />
+              <Input 
+                id="name" 
+                placeholder="John Doe" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
             
             <div className="space-y-2">
@@ -46,7 +126,7 @@ const Auth = () => {
               <RadioGroup 
                 defaultValue="volunteer" 
                 className="flex gap-4"
-                onValueChange={setUserType}
+                onValueChange={(value) => setUserType(value as 'volunteer' | 'organizer')}
                 value={userType}
               >
                 <div className="flex items-center space-x-2">
@@ -64,12 +144,24 @@ const Auth = () => {
         
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="your@email.com" />
+          <Input 
+            id="email" 
+            type="email" 
+            placeholder="your@email.com" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
         
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" placeholder="••••••••" />
+          <Input 
+            id="password" 
+            type="password" 
+            placeholder="••••••••" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
         
         {isLogin && (
@@ -80,8 +172,8 @@ const Auth = () => {
           </div>
         )}
         
-        <Button type="submit" className="w-full">
-          {isLogin ? 'Sign In' : 'Sign Up'}
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Sign Up'}
         </Button>
         
         <div className="relative my-6">
@@ -105,6 +197,7 @@ const Auth = () => {
             variant="link" 
             className="p-0 h-auto"
             onClick={() => setIsLogin(!isLogin)}
+            type="button"
           >
             {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
           </Button>
