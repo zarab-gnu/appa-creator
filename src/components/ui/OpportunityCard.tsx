@@ -66,14 +66,14 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
         
         <Button 
           variant="outline" 
-          className="w-full"
+          className="w-full mb-10" /* Added bottom margin to create space for the swipe buttons */
           onClick={onViewDetails}
         >
           View Details
         </Button>
       </div>
       
-      <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-4 pointer-events-none">
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none">
         <div className="flex gap-2">
           <div className="bg-destructive text-destructive-foreground rounded-full px-3 py-1 text-sm font-medium opacity-70">
             Skip
