@@ -9,20 +9,33 @@ export function useSupabaseAuth() {
   const [user, setUser] = useState<AuthUser>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchUserProfile(session.user);
+        } else {
+          setUserProfile(null);
+        }
+        
         setLoading(false);
       }
     );
 
     // Initial session fetch
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        await fetchUserProfile(session.user);
+      }
+      
       setLoading(false);
     });
 
@@ -31,14 +44,38 @@ export function useSupabaseAuth() {
     };
   }, []);
 
+  const fetchUserProfile = async (user: User) => {
+    const userType = user.user_metadata.user_type;
+    const table = userType === 'organizer' ? 'organizer_profiles' : 'volunteer_profiles';
+    
+    const { data, error } = await supabase
+      .from(table)
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+      
+    if (error) {
+      console.error('Error fetching user profile:', error);
+      return null;
+    }
+    
+    setUserProfile(data);
+    return data;
+  };
+
   const signIn = async ({ email, password }: { email: string; password: string }) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
       if (error) throw error;
+      
+      if (data.user) {
+        await fetchUserProfile(data.user);
+      }
+      
       return { success: true };
     } catch (error) {
       console.error('Error signing in:', error);
@@ -92,6 +129,7 @@ export function useSupabaseAuth() {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      setUserProfile(null);
       return { success: true };
     } catch (error) {
       console.error('Error signing out:', error);
@@ -103,8 +141,10 @@ export function useSupabaseAuth() {
     user,
     session,
     loading,
+    userProfile,
     signIn,
     signUp,
     signOut,
+    fetchUserProfile,
   };
 }

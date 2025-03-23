@@ -1,5 +1,7 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { Toaster } from './components/ui/toaster';
 import Index from './pages/Index';
 import Onboarding from './pages/Onboarding';
 import Auth from './pages/Auth';
@@ -19,30 +21,33 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* User Routes */}
-        <Route path="/" element={<Index />} />
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/opportunity/:id" element={<OpportunityDetail />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/chat" element={<Chat />} />
-        <Route path="/chat/:id" element={<Chat />} />
-        <Route path="/calendar" element={<Calendar />} />
-        <Route path="/notifications" element={<Notifications />} />
-        
-        {/* Organizer Routes */}
-        <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
-        <Route path="/organizer/create" element={<OpportunityCreation />} />
-        <Route path="/organizer/volunteers/:id" element={<VolunteerManagement />} />
-        <Route path="/organizer/analytics" element={<Analytics />} />
-        
-        {/* 404 */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* User Routes */}
+          <Route path="/" element={<Index />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/opportunity/:id" element={<OpportunityDetail />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/chat/:id" element={<Chat />} />
+          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/notifications" element={<Notifications />} />
+          
+          {/* Organizer Routes */}
+          <Route path="/organizer/dashboard" element={<OrganizerDashboard />} />
+          <Route path="/organizer/create" element={<OpportunityCreation />} />
+          <Route path="/organizer/volunteers/:id" element={<VolunteerManagement />} />
+          <Route path="/organizer/analytics" element={<Analytics />} />
+          
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+      <Toaster />
+    </AuthProvider>
   );
 }
 
