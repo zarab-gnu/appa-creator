@@ -5,17 +5,18 @@ import { Filter, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MobileLayout from '@/components/layout/MobileLayout';
 import SwipeCard from '@/components/ui/SwipeCard';
-import OpportunityCard, { Opportunity } from '@/components/ui/OpportunityCard';
-import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
+import OpportunityCard from '@/components/ui/OpportunityCard';
+import { useAuth } from '@/contexts/AuthContext';
 import { fetchOpportunities, saveUserResponse } from '@/lib/opportunityService';
 import { useToast } from '@/hooks/use-toast';
+import { Opportunity } from '@/types/database';
 
 const Home = () => {
   const navigate = useNavigate();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const { user } = useSupabaseAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
   
   useEffect(() => {
@@ -27,11 +28,11 @@ const Home = () => {
           setOpportunities(data);
         } else {
           // Fallback to sample data if no opportunities are found
-          setOpportunities(sampleOpportunities);
+          setOpportunities(sampleOpportunities as unknown as Opportunity[]);
         }
       } catch (error) {
         console.error('Error loading opportunities:', error);
-        setOpportunities(sampleOpportunities);
+        setOpportunities(sampleOpportunities as unknown as Opportunity[]);
         toast({
           title: "Couldn't load opportunities",
           description: "Using sample data instead",
@@ -56,7 +57,7 @@ const Home = () => {
         setCurrentIndex(currentIndex + 1);
       } else {
         // No more opportunities to show
-        setOpportunities([...opportunities, ...sampleOpportunities]);
+        setOpportunities([...opportunities, ...(sampleOpportunities as unknown as Opportunity[])]);
         setCurrentIndex(currentIndex + 1);
       }
     }, 300);
@@ -78,7 +79,7 @@ const Home = () => {
         setCurrentIndex(currentIndex + 1);
       } else {
         // No more opportunities to show
-        setOpportunities([...opportunities, ...sampleOpportunities]);
+        setOpportunities([...opportunities, ...(sampleOpportunities as unknown as Opportunity[])]);
         setCurrentIndex(currentIndex + 1);
       }
     }, 300);
@@ -89,36 +90,45 @@ const Home = () => {
   };
   
   // Sample data as fallback
-  const sampleOpportunities: Opportunity[] = [
+  const sampleOpportunities = [
     {
       id: '1',
       title: 'Beach Cleanup Drive',
-      organizationName: 'Ocean Conservancy',
+      organization_name: 'Ocean Conservancy',
+      organization_id: '1',
       location: 'Miami Beach, FL',
       date: 'Aug 15, 2023',
       time: '9:00 AM - 12:00 PM',
-      imageUrl: 'https://placehold.co/600x400?text=Beach+Cleanup',
-      skills: ['Environment', 'Physical Labor', 'Teamwork']
+      image_url: 'https://placehold.co/600x400?text=Beach+Cleanup',
+      skills: ['Environment', 'Physical Labor', 'Teamwork'],
+      created_at: new Date().toISOString(),
+      status: 'active' as const
     },
     {
       id: '2',
       title: 'Food Distribution for Homeless',
-      organizationName: 'City Shelter',
+      organization_name: 'City Shelter',
+      organization_id: '2',
       location: 'Downtown Chicago, IL',
       date: 'Aug 20, 2023',
       time: '5:00 PM - 8:00 PM',
-      imageUrl: 'https://placehold.co/600x400?text=Food+Distribution',
-      skills: ['Communication', 'Service', 'Organization']
+      image_url: 'https://placehold.co/600x400?text=Food+Distribution',
+      skills: ['Communication', 'Service', 'Organization'],
+      created_at: new Date().toISOString(),
+      status: 'active' as const
     },
     {
       id: '3',
       title: 'Teach Computer Skills to Seniors',
-      organizationName: 'Elder Tech Connect',
+      organization_name: 'Elder Tech Connect',
+      organization_id: '3',
       location: 'Senior Center, Boston, MA',
       date: 'Aug 22, 2023',
       time: '2:00 PM - 4:00 PM',
-      imageUrl: 'https://placehold.co/600x400?text=Tech+Education',
-      skills: ['Teaching', 'Technology', 'Patience']
+      image_url: 'https://placehold.co/600x400?text=Tech+Education',
+      skills: ['Teaching', 'Technology', 'Patience'],
+      created_at: new Date().toISOString(),
+      status: 'active' as const
     }
   ];
   

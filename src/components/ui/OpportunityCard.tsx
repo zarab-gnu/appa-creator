@@ -3,20 +3,10 @@ import React from 'react';
 import { MapPin, Calendar, Clock } from 'lucide-react';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Button } from '@/components/ui/button';
-
-export interface Opportunity {
-  id: string;
-  title: string;
-  organizationName: string;
-  location: string;
-  date: string;
-  time: string;
-  imageUrl: string;
-  skills: string[];
-}
+import { Opportunity as OpportunityType } from '@/types/database';
 
 interface OpportunityCardProps {
-  opportunity: Opportunity;
+  opportunity: OpportunityType;
   onViewDetails?: () => void;
   onSkip?: () => void;
   onAccept?: () => void;
@@ -32,7 +22,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
     <div className="flex flex-col h-full relative">
       <AspectRatio ratio={4/3} className="bg-muted">
         <img 
-          src={opportunity.imageUrl || 'https://placehold.co/600x400?text=Volunteer+Opportunity'} 
+          src={opportunity.image_url || 'https://placehold.co/600x400?text=Volunteer+Opportunity'} 
           alt={opportunity.title}
           className="object-cover w-full h-full rounded-t-2xl"
         />
@@ -41,7 +31,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
       
       <div className="p-4 flex flex-col flex-grow">
         <h3 className="text-xl font-semibold line-clamp-2">{opportunity.title}</h3>
-        <p className="text-sm text-muted-foreground mb-2">{opportunity.organizationName}</p>
+        <p className="text-sm text-muted-foreground mb-2">{opportunity.organization_name}</p>
         
         <div className="flex items-center text-sm text-muted-foreground mb-1">
           <MapPin className="h-4 w-4 mr-1" />
@@ -62,7 +52,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
         <div className="mb-4 flex-grow">
           <p className="text-sm mb-2 font-medium">Skills needed:</p>
           <div className="flex flex-wrap gap-1">
-            {opportunity.skills.map((skill, index) => (
+            {opportunity.skills && opportunity.skills.map((skill, index) => (
               <span key={index} className="skill-badge">{skill}</span>
             ))}
           </div>
@@ -70,7 +60,7 @@ const OpportunityCard: React.FC<OpportunityCardProps> = ({
         
         <Button 
           variant="outline" 
-          className="w-full mb-10" /* Bottom margin to create space for the swipe buttons */
+          className="w-full mb-10" 
           onClick={onViewDetails}
         >
           View Details

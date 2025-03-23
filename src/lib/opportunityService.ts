@@ -1,6 +1,6 @@
 
 import { supabase } from './supabase';
-import { Opportunity } from '@/components/ui/OpportunityCard';
+import { Opportunity } from '@/types/database';
 import { fetchData, insertData } from './dataService';
 
 export async function fetchOpportunities() {
