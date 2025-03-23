@@ -24,7 +24,6 @@ export interface Profile {
   bio?: string;
   profile_image_url?: string;
   user_type: 'volunteer' | 'organizer';
-  created_at: string;
 }
 
 export interface Message {

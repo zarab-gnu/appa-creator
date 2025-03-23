@@ -107,15 +107,14 @@ export function useSupabaseAuth() {
       if (error) throw error;
       
       if (data?.user) {
-        // Create a profile record in the profiles table
+        // Create a profile record in the profiles table - without created_at field
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
             user_id: data.user.id,
             name,
             email,
-            user_type: userType,
-            created_at: new Date().toISOString()
+            user_type: userType
           });
           
         if (profileError) throw profileError;
