@@ -1,6 +1,6 @@
 
 import { supabase } from './supabase';
-import { Opportunity } from '@/types/database';
+import { Opportunity, VolunteerSignup } from '@/types/database';
 import { fetchData, insertData } from './dataService';
 
 export async function fetchOpportunities() {
@@ -33,12 +33,17 @@ export async function fetchOpportunity(id: string) {
 
 export async function saveUserResponse(userId: string, opportunityId: string, response: 'accept' | 'skip') {
   try {
-    await insertData('opportunity_responses', {
-      user_id: userId,
-      opportunity_id: opportunityId,
-      response_type: response,
-      created_at: new Date().toISOString()
-    });
+    if (response === 'accept') {
+      // Create volunteer signup record
+      await insertData('volunteer_signups', {
+        user_id: userId,
+        opportunity_id: opportunityId,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      });
+    }
+    // We could add a table to track skipped opportunities if needed
+    
     return true;
   } catch (error) {
     console.error('Error saving response:', error);
@@ -52,7 +57,8 @@ export async function createOpportunity(opportunityData: Partial<Opportunity>) {
       .from('opportunities')
       .insert({
         ...opportunityData,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        status: 'active'
       })
       .select();
       
@@ -60,6 +66,40 @@ export async function createOpportunity(opportunityData: Partial<Opportunity>) {
     return { success: true, data };
   } catch (error) {
     console.error('Error creating opportunity:', error);
+    return { success: false, error };
+  }
+}
+
+export async function getVolunteerSignups(opportunityId: string) {
+  try {
+    const { data, error } = await supabase
+      .from('volunteer_signups')
+      .select(`
+        *,
+        profiles:user_id(*)
+      `)
+      .eq('opportunity_id', opportunityId);
+      
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error fetching volunteer signups:', error);
+    return [];
+  }
+}
+
+export async function updateSignupStatus(signupId: string, status: VolunteerSignup['status']) {
+  try {
+    const { data, error } = await supabase
+      .from('volunteer_signups')
+      .update({ status })
+      .eq('id', signupId)
+      .select();
+      
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error updating signup status:', error);
     return { success: false, error };
   }
 }

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Session, User } from '@supabase/supabase-js';
+import { Profile } from '@/types/database';
 
 export type AuthUser = User | null;
 
@@ -9,7 +10,7 @@ export function useSupabaseAuth() {
   const [user, setUser] = useState<AuthUser>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -45,22 +46,24 @@ export function useSupabaseAuth() {
   }, []);
 
   const fetchUserProfile = async (user: User) => {
-    const userType = user.user_metadata.user_type;
-    const table = userType === 'organizer' ? 'organizer_profiles' : 'volunteer_profiles';
-    
-    const { data, error } = await supabase
-      .from(table)
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+        
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return null;
+      }
       
-    if (error) {
-      console.error('Error fetching user profile:', error);
+      setUserProfile(data as Profile);
+      return data as Profile;
+    } catch (error) {
+      console.error('Error in fetchUserProfile:', error);
       return null;
     }
-    
-    setUserProfile(data);
-    return data;
   };
 
   const signIn = async ({ email, password }: { email: string; password: string }) => {
@@ -77,7 +80,7 @@ export function useSupabaseAuth() {
       }
       
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error signing in:', error);
       return { success: false, error };
     }
@@ -104,22 +107,22 @@ export function useSupabaseAuth() {
       if (error) throw error;
       
       if (data?.user) {
-        // Create a profile record in the appropriate table
-        const profileTable = userType === 'organizer' ? 'organizer_profiles' : 'volunteer_profiles';
-        
+        // Create a profile record in the profiles table
         const { error: profileError } = await supabase
-          .from(profileTable)
+          .from('profiles')
           .insert({
             user_id: data.user.id,
             name,
-            email
+            email,
+            user_type: userType,
+            created_at: new Date().toISOString()
           });
           
         if (profileError) throw profileError;
       }
       
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error signing up:', error);
       return { success: false, error };
     }
@@ -131,7 +134,7 @@ export function useSupabaseAuth() {
       if (error) throw error;
       setUserProfile(null);
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error signing out:', error);
       return { success: false, error };
     }

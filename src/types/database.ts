@@ -11,39 +11,44 @@ export interface Opportunity {
   date: string;
   time: string;
   image_url?: string;
-  skills: string[];
+  skills?: string[];
   created_at: string;
   status: 'active' | 'completed' | 'cancelled';
 }
 
-export interface VolunteerProfile {
+export interface Profile {
   id: string;
   user_id: string;
   name: string;
   email: string;
   bio?: string;
   profile_image_url?: string;
-  skills?: string[];
-  interests?: string[];
+  user_type: 'volunteer' | 'organizer';
   created_at: string;
 }
 
-export interface OrganizerProfile {
+export interface Message {
   id: string;
-  user_id: string;
-  name: string;
-  email: string;
-  organization_name: string;
-  organization_description?: string;
-  logo_url?: string;
-  website?: string;
+  sender_id: string;
+  receiver_id: string;
+  content: string;
   created_at: string;
+  read: boolean;
 }
 
-export interface OpportunityResponse {
+export interface Feedback {
   id: string;
   user_id: string;
   opportunity_id: string;
-  response_type: 'accept' | 'skip';
+  rating: number;
+  comments?: string;
+  created_at: string;
+}
+
+export interface VolunteerSignup {
+  id: string;
+  user_id: string;
+  opportunity_id: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   created_at: string;
 }

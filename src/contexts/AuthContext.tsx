@@ -2,11 +2,12 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { Session, User } from '@supabase/supabase-js';
+import { Profile } from '@/types/database';
 
 type AuthContextType = {
   user: User | null;
   session: Session | null;
-  userProfile: any;
+  userProfile: Profile | null;
   loading: boolean;
   signIn: (credentials: { email: string; password: string }) => Promise<{ success: boolean; error?: any }>;
   signUp: (data: { email: string; password: string; userType: 'volunteer' | 'organizer'; name: string }) => Promise<{ success: boolean; error?: any }>;

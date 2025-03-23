@@ -1,5 +1,6 @@
 
 import { supabase } from './supabase';
+import { Profile, Opportunity, Message, Feedback, VolunteerSignup } from '@/types/database';
 
 // Generic function to fetch data from any table
 export async function fetchData(table: string, query: any = {}) {
@@ -80,38 +81,149 @@ export async function deleteData(table: string, id: string, idColumn = 'id') {
   return true;
 }
 
-// Example of a specific function for opportunities
-export async function fetchOpportunities(filters = {}) {
-  return fetchData('opportunities', { 
-    filters,
-    orderBy: { column: 'created_at', ascending: false }
-  });
-}
-
-// Example of a specific function for user profiles
-export async function fetchUserProfile(userId: string, userType: 'volunteer' | 'organizer') {
-  const table = userType === 'organizer' ? 'organizer_profiles' : 'volunteer_profiles';
-  
-  const { data, error } = await supabase
-    .from(table)
-    .select('*')
-    .eq('user_id', userId)
-    .single();
-  
-  if (error) {
-    console.error(`Error fetching user profile from ${table}:`, error);
-    throw error;
+// Function to fetch user profile
+export async function fetchUserProfile(userId: string): Promise<Profile | null> {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    
+    if (error) {
+      console.error(`Error fetching user profile:`, error);
+      throw error;
+    }
+    
+    return data as Profile;
+  } catch (error) {
+    console.error('Error in fetchUserProfile:', error);
+    return null;
   }
-  
-  return data;
 }
 
-// Function to handle user responses to opportunities
-export async function saveOpportunityResponse(userId: string, opportunityId: string, response: 'accept' | 'skip') {
-  return insertData('opportunity_responses', {
-    user_id: userId,
-    opportunity_id: opportunityId,
-    response_type: response,
-    created_at: new Date().toISOString()
-  });
+// Function to fetch messages
+export async function fetchMessages(userId: string): Promise<Message[]> {
+  try {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error(`Error fetching messages:`, error);
+      throw error;
+    }
+    
+    return data as Message[];
+  } catch (error) {
+    console.error('Error in fetchMessages:', error);
+    return [];
+  }
+}
+
+// Function to send a message
+export async function sendMessage(senderId: string, receiverId: string, content: string): Promise<Message | null> {
+  try {
+    const { data, error } = await supabase
+      .from('messages')
+      .insert({
+        sender_id: senderId,
+        receiver_id: receiverId,
+        content,
+        created_at: new Date().toISOString(),
+        read: false
+      })
+      .select()
+      .single();
+    
+    if (error) {
+      console.error(`Error sending message:`, error);
+      throw error;
+    }
+    
+    return data as Message;
+  } catch (error) {
+    console.error('Error in sendMessage:', error);
+    return null;
+  }
+}
+
+// Function to create or update feedback
+export async function saveFeedback(
+  userId: string, 
+  opportunityId: string, 
+  rating: number, 
+  comments?: string
+): Promise<Feedback | null> {
+  try {
+    // Check if feedback already exists
+    const { data: existingFeedback } = await supabase
+      .from('feedback')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('opportunity_id', opportunityId)
+      .maybeSingle();
+    
+    let result;
+    
+    if (existingFeedback) {
+      // Update existing feedback
+      const { data, error } = await supabase
+        .from('feedback')
+        .update({ rating, comments, created_at: new Date().toISOString() })
+        .eq('id', existingFeedback.id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      result = data;
+    } else {
+      // Create new feedback
+      const { data, error } = await supabase
+        .from('feedback')
+        .insert({
+          user_id: userId,
+          opportunity_id: opportunityId,
+          rating,
+          comments,
+          created_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      result = data;
+    }
+    
+    return result as Feedback;
+  } catch (error) {
+    console.error('Error in saveFeedback:', error);
+    return null;
+  }
+}
+
+// Function to fetch volunteer signups for a user
+export async function fetchUserSignups(userId: string): Promise<(VolunteerSignup & { opportunity: Opportunity })[]> {
+  try {
+    const { data, error } = await supabase
+      .from('volunteer_signups')
+      .select(`
+        *,
+        opportunity:opportunity_id(*)
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error(`Error fetching user signups:`, error);
+      throw error;
+    }
+    
+    return data as unknown as (VolunteerSignup & { opportunity: Opportunity })[];
+  } catch (error) {
+    console.error('Error in fetchUserSignups:', error);
+    return [];
+  }
 }
