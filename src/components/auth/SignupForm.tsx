@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { useToast } from '@/hooks/use-toast';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { User, Building } from 'lucide-react';
 
 interface SignupFormProps {
   userType: 'volunteer' | 'organizer';
@@ -76,7 +77,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ userType, setUserType }) => {
   };
   
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="name">Full Name</Label>
         <Input 
@@ -87,23 +88,32 @@ const SignupForm: React.FC<SignupFormProps> = ({ userType, setUserType }) => {
         />
       </div>
       
-      <div className="space-y-2">
-        <Label>I am a:</Label>
-        <RadioGroup 
-          defaultValue="volunteer" 
-          className="flex gap-4"
-          onValueChange={(value) => setUserType(value as 'volunteer' | 'organizer')}
+      <div className="space-y-3">
+        <Label className="block mb-1">Account Type</Label>
+        <ToggleGroup 
+          type="single" 
+          variant="outline"
+          className="grid grid-cols-2 gap-2 p-1 border rounded-lg"
           value={userType}
+          onValueChange={(value) => value && setUserType(value as 'volunteer' | 'organizer')}
         >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="volunteer" id="volunteer" />
-            <Label htmlFor="volunteer">Volunteer</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="organizer" id="organizer" />
-            <Label htmlFor="organizer">Organizer</Label>
-          </div>
-        </RadioGroup>
+          <ToggleGroupItem 
+            value="volunteer" 
+            className={`flex flex-col items-center justify-center py-3 gap-2 ${userType === 'volunteer' ? 'bg-primary/10' : ''}`}
+            aria-label="Volunteer account"
+          >
+            <User className="h-5 w-5" />
+            <span>Volunteer</span>
+          </ToggleGroupItem>
+          <ToggleGroupItem 
+            value="organizer" 
+            className={`flex flex-col items-center justify-center py-3 gap-2 ${userType === 'organizer' ? 'bg-primary/10' : ''}`}
+            aria-label="Organizer account"
+          >
+            <Building className="h-5 w-5" />
+            <span>Organizer</span>
+          </ToggleGroupItem>
+        </ToggleGroup>
       </div>
       
       <div className="space-y-2">
