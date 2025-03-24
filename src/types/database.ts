@@ -1,5 +1,4 @@
 
-
 // Database schema types for Supabase
 
 export interface Opportunity {
@@ -25,6 +24,10 @@ export interface Profile {
   bio?: string;
   profile_image_url?: string;
   user_type: 'volunteer' | 'organizer';
+  // Add optional fields to support both profile structures
+  availability?: any;
+  interests?: string[];
+  skills?: string[];
 }
 
 export interface Message {
@@ -52,4 +55,3 @@ export interface VolunteerSignup {
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   created_at: string;
 }
-

@@ -12,7 +12,7 @@ export default {
 	theme: {
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: "2rem",
 			screens: {
 				'2xl': '1400px'
 			}
@@ -61,6 +61,17 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Custom colors from the theme
+				'gold': {
+					DEFAULT: '#D4AF37',
+					light: '#F1D78F',
+					dark: '#B8860B',
+				},
+				'forest': {
+					DEFAULT: '#1A472A',
+					light: '#2E8B57',
+					dark: '#0B3818',
 				}
 			},
 			borderRadius: {
