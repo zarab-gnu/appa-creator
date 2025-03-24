@@ -1,5 +1,4 @@
 
-
 import { supabase } from './supabase';
 import { Profile, Opportunity, Message, Feedback, VolunteerSignup } from '@/types/database';
 
@@ -88,7 +87,7 @@ export async function fetchUserProfile(userId: string): Promise<Profile | null> 
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .single();
     
     if (error) {
@@ -133,7 +132,6 @@ export async function sendMessage(senderId: string, receiverId: string, content:
         sender_id: senderId,
         receiver_id: receiverId,
         content,
-        created_at: new Date().toISOString(),
         read: false
       })
       .select()
@@ -173,7 +171,7 @@ export async function saveFeedback(
       // Update existing feedback
       const { data, error } = await supabase
         .from('feedback')
-        .update({ rating, comments, created_at: new Date().toISOString() })
+        .update({ rating, comments })
         .eq('id', existingFeedback.id)
         .select()
         .single();
@@ -188,8 +186,7 @@ export async function saveFeedback(
           user_id: userId,
           opportunity_id: opportunityId,
           rating,
-          comments,
-          created_at: new Date().toISOString()
+          comments
         })
         .select()
         .single();
@@ -228,4 +225,3 @@ export async function fetchUserSignups(userId: string): Promise<(VolunteerSignup
     return [];
   }
 }
-

@@ -1,14 +1,16 @@
 
-
 import { supabase } from './supabase';
 import { Opportunity, VolunteerSignup } from '@/types/database';
-import { fetchData, insertData } from './dataService';
 
 export async function fetchOpportunities() {
   try {
-    const data = await fetchData('opportunities', {
-      orderBy: { column: 'created_at', ascending: false }
-    });
+    const { data, error } = await supabase
+      .from('opportunities')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+      
+    if (error) throw error;
     return data as Opportunity[];
   } catch (error) {
     console.error('Error fetching opportunities:', error);
@@ -36,12 +38,15 @@ export async function saveUserResponse(userId: string, opportunityId: string, re
   try {
     if (response === 'accept') {
       // Create volunteer signup record
-      await insertData('volunteer_signups', {
-        user_id: userId,
-        opportunity_id: opportunityId,
-        status: 'pending',
-        created_at: new Date().toISOString()
-      });
+      const { error } = await supabase
+        .from('volunteer_signups')
+        .insert({
+          user_id: userId,
+          opportunity_id: opportunityId,
+          status: 'pending',
+        });
+        
+      if (error) throw error;
     }
     // We could add a table to track skipped opportunities if needed
     
@@ -58,7 +63,6 @@ export async function createOpportunity(opportunityData: Partial<Opportunity>) {
       .from('opportunities')
       .insert({
         ...opportunityData,
-        created_at: new Date().toISOString(),
         status: 'active'
       })
       .select();
@@ -104,4 +108,3 @@ export async function updateSignupStatus(signupId: string, status: VolunteerSign
     return { success: false, error };
   }
 }
-

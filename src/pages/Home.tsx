@@ -7,9 +7,9 @@ import MobileLayout from '@/components/layout/MobileLayout';
 import SwipeCard from '@/components/ui/SwipeCard';
 import OpportunityCard from '@/components/ui/OpportunityCard';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchOpportunities, saveUserResponse } from '@/lib/opportunityService';
 import { useToast } from '@/hooks/use-toast';
 import { Opportunity } from '@/types/database';
+import { supabase } from '@/lib/supabase';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -20,12 +20,19 @@ const Home = () => {
   const { toast } = useToast();
   
   useEffect(() => {
-    const loadOpportunities = async () => {
+    const fetchOpportunities = async () => {
       setLoading(true);
       try {
-        const data = await fetchOpportunities();
+        const { data, error } = await supabase
+          .from('opportunities')
+          .select('*')
+          .eq('status', 'active')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
         if (data && data.length > 0) {
-          setOpportunities(data);
+          setOpportunities(data as Opportunity[]);
         } else {
           // Fallback to sample data if no opportunities are found
           setOpportunities(sampleOpportunities as unknown as Opportunity[]);
@@ -43,13 +50,18 @@ const Home = () => {
       }
     };
     
-    loadOpportunities();
+    fetchOpportunities();
   }, [toast]);
   
   const handleSwipeLeft = async () => {
     // Skip this opportunity
-    if (user) {
-      await saveUserResponse(user.id, opportunities[currentIndex].id, 'skip');
+    if (user && opportunities[currentIndex]) {
+      try {
+        // In a real app, you might want to record skipped opportunities
+        console.log('Skipped opportunity:', opportunities[currentIndex].id);
+      } catch (error) {
+        console.error('Error recording skip:', error);
+      }
     }
     
     setTimeout(() => {
@@ -65,13 +77,38 @@ const Home = () => {
   
   const handleSwipeRight = async () => {
     // Accept this opportunity
-    if (user) {
-      await saveUserResponse(user.id, opportunities[currentIndex].id, 'accept');
-      
+    if (user && opportunities[currentIndex]) {
+      try {
+        const { error } = await supabase
+          .from('volunteer_signups')
+          .insert({
+            user_id: user.id,
+            opportunity_id: opportunities[currentIndex].id,
+            status: 'pending'
+          });
+          
+        if (error) throw error;
+        
+        toast({
+          title: "Opportunity Accepted!",
+          description: `You've signed up for ${opportunities[currentIndex].title}`,
+        });
+      } catch (error: any) {
+        console.error('Error signing up:', error);
+        toast({
+          title: "Couldn't sign up",
+          description: error.message || "An error occurred",
+          variant: "destructive"
+        });
+      }
+    } else if (!user) {
       toast({
-        title: "Opportunity Accepted!",
-        description: `You've signed up for ${opportunities[currentIndex].title}`,
+        title: "Login required",
+        description: "Please sign in to sign up for opportunities",
+        variant: "default"
       });
+      navigate('/auth');
+      return;
     }
     
     setTimeout(() => {

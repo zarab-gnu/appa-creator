@@ -24,10 +24,9 @@ export interface Profile {
   bio?: string;
   profile_image_url?: string;
   user_type?: 'volunteer' | 'organizer';
-  // Add optional fields to support both profile structures
-  availability?: any;
   interests?: string[];
   skills?: string[];
+  created_at?: string;
 }
 
 export interface Message {

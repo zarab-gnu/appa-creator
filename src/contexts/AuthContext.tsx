@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { Profile } from '@/types/database';
 import { useNavigate } from 'react-router-dom';
@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .single();
         
       if (error) {
@@ -143,30 +143,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (data?.user) {
         console.log("User created:", data.user);
         
-        // Create a profile record in the profiles table
-        const profileData = {
-          id: data.user.id,  // This matches our Profile type that requires 'id'
-          user_id: data.user.id,
-          name,
-          email,
-          user_type: userType
-        };
-        
-        console.log("Creating profile with data:", profileData);
-        
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            name: name,
-            // Add any other required fields with default values
-          });
-          
-        if (profileError) {
-          console.error("Error creating profile:", profileError);
-          throw profileError;
-        }
-
         toast({
           title: "Account created!",
           description: "Your account has been successfully created.",
@@ -228,7 +204,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const { error } = await supabase
         .from('profiles')
         .update(profile)
-        .eq('user_id', user.id);
+        .eq('id', user.id);
         
       if (error) throw error;
       
