@@ -1,4 +1,5 @@
 
+
 import { supabase } from './supabase';
 import { Profile, Opportunity, Message, Feedback, VolunteerSignup } from '@/types/database';
 
@@ -227,3 +228,4 @@ export async function fetchUserSignups(userId: string): Promise<(VolunteerSignup
     return [];
   }
 }
+

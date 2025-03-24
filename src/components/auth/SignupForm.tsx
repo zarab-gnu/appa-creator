@@ -1,44 +1,50 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
-import { useToast } from '@/hooks/use-toast';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { User, Building } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Card, CardContent } from '@/components/ui/card';
+import { AlertCircle } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface SignupFormProps {
   userType: 'volunteer' | 'organizer';
-  setUserType: (type: 'volunteer' | 'organizer') => void;
+  setUserType: React.Dispatch<React.SetStateAction<'volunteer' | 'organizer'>>;
 }
 
 const SignupForm: React.FC<SignupFormProps> = ({ userType, setUserType }) => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
-  const navigate = useNavigate();
-  const { signUp } = useSupabaseAuth();
-  const { toast } = useToast();
+  const { signUp } = useAuth();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setError(null);
+    
+    if (!name || !email || !password || !confirmPassword) {
+      setError('Please fill in all fields');
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+    
+    setIsSubmitting(true);
     
     try {
-      if (!name) {
-        toast({
-          title: "Missing information",
-          description: "Please provide your full name",
-          variant: "destructive"
-        });
-        setLoading(false);
-        return;
-      }
-      
       const { success, error } = await signUp({ 
         email, 
         password, 
@@ -46,102 +52,103 @@ const SignupForm: React.FC<SignupFormProps> = ({ userType, setUserType }) => {
         name 
       });
       
-      if (success) {
-        toast({
-          title: "Account created",
-          description: "Welcome to VolunCheers!"
-        });
-        
-        if (userType === 'organizer') {
-          navigate('/organizer/dashboard');
-        } else {
-          navigate('/home');
-        }
-      } else {
-        toast({
-          title: "Signup failed",
-          description: error.message,
-          variant: "destructive"
-        });
+      if (!success) {
+        setError(error?.message || 'Sign up failed. Please try again.');
       }
-    } catch (error) {
-      console.error('Auth error:', error);
-      toast({
-        title: "Authentication error",
-        description: "An unexpected error occurred",
-        variant: "destructive"
-      });
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
   
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="name">Full Name</Label>
-        <Input 
-          id="name" 
-          placeholder="John Doe" 
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </div>
-      
-      <div className="space-y-3">
-        <Label className="block mb-1">Account Type</Label>
-        <ToggleGroup 
-          type="single" 
-          variant="outline"
-          className="grid grid-cols-2 gap-2 p-1 border rounded-lg"
-          value={userType}
-          onValueChange={(value) => value && setUserType(value as 'volunteer' | 'organizer')}
-        >
-          <ToggleGroupItem 
-            value="volunteer" 
-            className={`flex flex-col items-center justify-center py-3 gap-2 ${userType === 'volunteer' ? 'bg-primary/10' : ''}`}
-            aria-label="Volunteer account"
+    <Card className="w-full">
+      <CardContent className="pt-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="bg-destructive/10 p-3 rounded-md flex items-start gap-2 text-destructive">
+              <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
+          
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name</Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label>I am a:</Label>
+            <RadioGroup 
+              value={userType} 
+              onValueChange={(value) => setUserType(value as 'volunteer' | 'organizer')}
+              className="flex space-x-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="volunteer" id="volunteer" />
+                <Label htmlFor="volunteer" className="cursor-pointer">Volunteer</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="organizer" id="organizer" />
+                <Label htmlFor="organizer" className="cursor-pointer">Organizer</Label>
+              </div>
+            </RadioGroup>
+          </div>
+          
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={isSubmitting}
           >
-            <User className="h-5 w-5" />
-            <span>Volunteer</span>
-          </ToggleGroupItem>
-          <ToggleGroupItem 
-            value="organizer" 
-            className={`flex flex-col items-center justify-center py-3 gap-2 ${userType === 'organizer' ? 'bg-primary/10' : ''}`}
-            aria-label="Organizer account"
-          >
-            <Building className="h-5 w-5" />
-            <span>Organizer</span>
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input 
-          id="email" 
-          type="email" 
-          placeholder="your@email.com" 
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
-        <Input 
-          id="password" 
-          type="password" 
-          placeholder="••••••••" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? 'Processing...' : 'Sign Up'}
-      </Button>
-    </form>
+            {isSubmitting ? 'Creating Account...' : 'Create Account'}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
 

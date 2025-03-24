@@ -1,4 +1,5 @@
 
+
 // Database schema types for Supabase
 
 export interface Opportunity {
@@ -51,3 +52,4 @@ export interface VolunteerSignup {
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   created_at: string;
 }
+

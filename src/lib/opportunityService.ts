@@ -1,4 +1,5 @@
 
+
 import { supabase } from './supabase';
 import { Opportunity, VolunteerSignup } from '@/types/database';
 import { fetchData, insertData } from './dataService';
@@ -103,3 +104,4 @@ export async function updateSignupStatus(signupId: string, status: VolunteerSign
     return { success: false, error };
   }
 }
+
