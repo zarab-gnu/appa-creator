@@ -62,23 +62,23 @@ const VolunteerManagement = () => {
                   </div>
                   
                   <div className="mt-4 flex justify-end gap-2">
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" className="border-secondary text-secondary hover:bg-secondary/10">
                       <MessageSquare className="h-4 w-4 mr-2" />
                       Message
                     </Button>
                     {volunteer.status === 'pending' ? (
                       <>
-                        <Button size="sm" variant="outline" className="text-green-600">
+                        <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
                           <UserCheck className="h-4 w-4 mr-2" />
                           Approve
                         </Button>
-                        <Button size="sm" variant="outline" className="text-red-600">
+                        <Button size="sm" variant="outline" className="text-red-600 border-red-600 hover:bg-red-50">
                           <UserX className="h-4 w-4 mr-2" />
                           Reject
                         </Button>
                       </>
                     ) : (
-                      <Button size="sm" variant="outline" className="text-red-600">
+                      <Button size="sm" variant="outline" className="text-red-600 border-red-600 hover:bg-red-50">
                         <UserX className="h-4 w-4 mr-2" />
                         Remove
                       </Button>

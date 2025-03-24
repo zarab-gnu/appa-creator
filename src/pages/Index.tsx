@@ -18,7 +18,7 @@ const Index = () => {
       
       <div className="w-full space-y-4">
         <Button 
-          className="w-full"
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={() => navigate('/onboarding')}
         >
           Get Started
@@ -26,7 +26,7 @@ const Index = () => {
         
         <Button 
           variant="outline" 
-          className="w-full"
+          className="w-full border-secondary text-secondary hover:bg-secondary/10"
           onClick={() => navigate('/auth')}
         >
           I already have an account

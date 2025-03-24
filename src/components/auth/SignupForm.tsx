@@ -141,7 +141,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ userType, setUserType }) => {
           
           <Button 
             type="submit" 
-            className="w-full" 
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90" 
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Creating Account...' : 'Create Account'}

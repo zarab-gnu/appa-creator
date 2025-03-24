@@ -12,7 +12,7 @@
   --popover-foreground: 150 25% 13%;
   
   --primary: 43 65% 52%;  /* Gold */
-  --primary-foreground: 0 0% 100%;
+  --primary-foreground: 0 0% 15%;
   
   --secondary: 150 45% 25%;  /* Forest Green */
   --secondary-foreground: 0 0% 100%;
@@ -44,7 +44,7 @@
   --popover-foreground: 210 40% 98%;
   
   --primary: 43 65% 52%;  /* Gold */
-  --primary-foreground: 0 0% 0%;
+  --primary-foreground: 0 0% 15%;
   
   --secondary: 150 45% 25%;  /* Forest Green */
   --secondary-foreground: 210 40% 98%;
@@ -61,6 +61,36 @@
   --border: 150 30% 25%;
   --input: 150 30% 25%;
   --ring: 43 65% 52%;  /* Gold */
+}
+
+/* Override button color default for primary action buttons */
+.btn-primary {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+}
+
+/* Override button color for secondary action buttons */
+.btn-secondary {
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/90;
+}
+
+/* Gold accent elements */
+.gold-accent {
+  @apply text-primary bg-primary/10;
+}
+
+/* Forest green accent elements */
+.green-accent {
+  @apply text-secondary bg-secondary/10;
+}
+
+/* Card with gold gradient */
+.gold-gradient-card {
+  @apply bg-gradient-to-br from-[#D4AF37]/10 to-[#B8860B]/20;
+}
+
+/* Card with green gradient */
+.green-gradient-card {
+  @apply bg-gradient-to-br from-[#1A472A]/10 to-[#0B3818]/20;
 }
 
 /* ... keep existing code */

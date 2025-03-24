@@ -17,19 +17,19 @@ const OnboardingScreens = [
     title: "Connect with Organizations",
     description: "Chat directly with organizers to learn more about events",
     icon: Users,
-    color: "bg-blue-500/10 text-blue-500"
+    color: "bg-secondary/10 text-secondary"
   },
   {
     title: "Track Your Schedule",
     description: "Manage your volunteer schedule with our calendar integration",
     icon: Calendar,
-    color: "bg-green-500/10 text-green-500"
+    color: "bg-primary/20 text-primary"
   },
   {
     title: "Earn Achievements",
     description: "Get recognized for your contributions with badges and points",
     icon: Award,
-    color: "bg-amber-500/10 text-amber-500"
+    color: "bg-secondary/20 text-secondary"
   }
 ];
 
@@ -80,7 +80,7 @@ const Onboarding = () => {
       </div>
       
       <Button 
-        className="w-full mb-6 flex items-center justify-center gap-2"
+        className="w-full mb-6 flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         onClick={handleNext}
       >
         {currentScreen < OnboardingScreens.length - 1 ? "Next" : "Get Started"}
