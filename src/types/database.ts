@@ -4,26 +4,26 @@
 export interface Opportunity {
   id: string;
   title: string;
-  organization_name: string;
-  organization_id: string;
+  organization_name?: string;
+  organization_id?: string;
   location: string;
   description?: string;
   date: string;
-  time: string;
+  time?: string;
   image_url?: string;
   skills?: string[];
   created_at: string;
-  status: 'active' | 'completed' | 'cancelled';
+  status?: 'active' | 'completed' | 'cancelled';
 }
 
 export interface Profile {
-  id?: string;
-  user_id: string;
+  id: string; // This is required and should match the user_id from auth
+  user_id?: string;
   name: string;
-  email: string;
+  email?: string;
   bio?: string;
   profile_image_url?: string;
-  user_type: 'volunteer' | 'organizer';
+  user_type?: 'volunteer' | 'organizer';
   // Add optional fields to support both profile structures
   availability?: any;
   interests?: string[];
@@ -36,7 +36,7 @@ export interface Message {
   receiver_id: string;
   content: string;
   created_at: string;
-  read: boolean;
+  read?: boolean;
 }
 
 export interface Feedback {
@@ -45,7 +45,7 @@ export interface Feedback {
   opportunity_id: string;
   rating: number;
   comments?: string;
-  created_at: string;
+  created_at?: string;
 }
 
 export interface VolunteerSignup {

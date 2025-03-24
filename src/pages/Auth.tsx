@@ -13,8 +13,8 @@ const Auth = () => {
   return (
     <div className="mobile-container p-6">
       <div className="flex flex-col items-center justify-center mb-8">
-        <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mb-4">
-          <span className="text-primary text-2xl font-bold">VC</span>
+        <div className="w-20 h-20 rounded-full bg-amber-500/20 flex items-center justify-center mb-4">
+          <span className="text-amber-600 text-2xl font-bold">VC</span>
         </div>
         <h1 className="text-2xl font-bold">
           {isLogin ? 'Welcome Back' : 'Join VolunCheers'}
@@ -29,14 +29,14 @@ const Auth = () => {
           <ToggleGroupItem 
             value="login" 
             onClick={() => setIsLogin(true)}
-            className={`w-32 ${isLogin ? 'bg-secondary/10 text-secondary' : ''}`}
+            className={`w-32 ${isLogin ? 'bg-amber-500/10 text-amber-600' : ''}`}
           >
             Sign In
           </ToggleGroupItem>
           <ToggleGroupItem 
             value="signup" 
             onClick={() => setIsLogin(false)}
-            className={`w-32 ${!isLogin ? 'bg-primary/10 text-primary' : ''}`}
+            className={`w-32 ${!isLogin ? 'bg-green-600/10 text-green-600' : ''}`}
           >
             Sign Up
           </ToggleGroupItem>
@@ -54,7 +54,7 @@ const Auth = () => {
       <div className="text-center mt-6">
         <Button 
           variant="link" 
-          className="p-0 h-auto text-secondary hover:text-secondary/80"
+          className="p-0 h-auto text-green-600 hover:text-green-700"
           onClick={() => setIsLogin(!isLogin)}
           type="button"
         >

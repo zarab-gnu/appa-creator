@@ -100,7 +100,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         toast({
           title: "Welcome back!",
           description: "You've successfully signed in.",
-          variant: "success",
+          variant: "default",
         });
         navigate('/home');
       }
@@ -126,16 +126,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       console.log("Signing up:", email, userType);
       
-      // First check if the user already exists but is in a different state
-      const { data: existingUsers } = await supabase.auth.admin.listUsers({
-        email: email
-      });
-      
-      if (existingUsers?.users?.length > 0) {
-        // If user exists but hasn't completed signup, attempt to delete and recreate
-        console.log("User already exists, attempting to recreate");
-      }
-      
       // Create the user
       const { error, data } = await supabase.auth.signUp({
         email,
@@ -155,6 +145,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         
         // Create a profile record in the profiles table
         const profileData = {
+          id: data.user.id,  // This matches our Profile type that requires 'id'
           user_id: data.user.id,
           name,
           email,
@@ -165,7 +156,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         
         const { error: profileError } = await supabase
           .from('profiles')
-          .insert(profileData);
+          .insert({
+            id: data.user.id,
+            name: name,
+            // Add any other required fields with default values
+          });
           
         if (profileError) {
           console.error("Error creating profile:", profileError);
@@ -175,7 +170,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         toast({
           title: "Account created!",
           description: "Your account has been successfully created.",
-          variant: "success",
+          variant: "default",
         });
         navigate('/home');
       } else {
@@ -242,7 +237,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       toast({
         title: "Profile updated",
         description: "Your profile has been successfully updated.",
-        variant: "success",
+        variant: "default",
       });
       
       return { success: true };
