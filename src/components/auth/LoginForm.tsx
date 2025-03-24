@@ -76,7 +76,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ userType }) => {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="password">Password</Label>
-              <Button variant="link" className="p-0 h-auto text-xs" type="button">
+              <Button variant="link" className="p-0 h-auto text-xs text-secondary" type="button">
                 Forgot Password?
               </Button>
             </div>
@@ -92,7 +92,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ userType }) => {
           
           <Button 
             type="submit" 
-            className="w-full" 
+            className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90" 
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Signing in...' : 'Sign In'}

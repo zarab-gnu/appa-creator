@@ -29,7 +29,7 @@ const Auth = () => {
           <ToggleGroupItem 
             value="login" 
             onClick={() => setIsLogin(true)}
-            className={`w-32 ${isLogin ? 'bg-primary/10 text-primary' : ''}`}
+            className={`w-32 ${isLogin ? 'bg-secondary/10 text-secondary' : ''}`}
           >
             Sign In
           </ToggleGroupItem>

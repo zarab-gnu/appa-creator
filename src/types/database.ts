@@ -17,7 +17,7 @@ export interface Opportunity {
 }
 
 export interface Profile {
-  id: string;
+  id?: string;
   user_id: string;
   name: string;
   email: string;
