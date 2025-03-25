@@ -2,11 +2,11 @@
 import { supabase } from './supabase';
 import { Profile, Opportunity, Message, Feedback, VolunteerSignup } from '@/types/database';
 
-// Define table names as literal types
+// Define table names
 type TableName = 'opportunities' | 'profiles' | 'volunteer_signups' | 'messages' | 'feedback';
 
-// Map table names to their corresponding types for proper type inference
-interface TableTypesMap {
+// Map table names to their corresponding types
+interface TableTypes {
   'opportunities': Opportunity;
   'profiles': Profile;
   'volunteer_signups': VolunteerSignup;
@@ -18,7 +18,7 @@ interface TableTypesMap {
 export async function fetchData<T extends TableName>(
   table: T, 
   query: any = {}
-): Promise<TableTypesMap[T][]> {
+): Promise<TableTypes[T][]> {
   let queryBuilder = supabase.from(table).select('*');
   
   // Apply filters if provided
@@ -47,15 +47,14 @@ export async function fetchData<T extends TableName>(
     throw error;
   }
   
-  // Force type assertion
-  return (data || []) as unknown as TableTypesMap[T][];
+  return (data || []) as TableTypes[T][];
 }
 
 // Generic function to insert data into any table
 export async function insertData<T extends TableName>(
   table: T, 
-  data: any
-): Promise<TableTypesMap[T][]> {
+  data: Partial<TableTypes[T]>
+): Promise<TableTypes[T][]> {
   const { data: result, error } = await supabase
     .from(table)
     .insert(data)
@@ -66,17 +65,16 @@ export async function insertData<T extends TableName>(
     throw error;
   }
   
-  // Force type assertion
-  return (result || []) as unknown as TableTypesMap[T][];
+  return (result || []) as TableTypes[T][];
 }
 
 // Generic function to update data in any table
 export async function updateData<T extends TableName>(
   table: T, 
   id: string, 
-  data: any, 
+  data: Partial<TableTypes[T]>, 
   idColumn = 'id'
-): Promise<TableTypesMap[T][]> {
+): Promise<TableTypes[T][]> {
   const { data: result, error } = await supabase
     .from(table)
     .update(data)
@@ -88,8 +86,7 @@ export async function updateData<T extends TableName>(
     throw error;
   }
   
-  // Force type assertion
-  return (result || []) as unknown as TableTypesMap[T][];
+  return (result || []) as TableTypes[T][];
 }
 
 // Generic function to delete data from any table
