@@ -5,8 +5,8 @@ import { Profile, Opportunity, Message, Feedback, VolunteerSignup } from '@/type
 // Define table names
 type TableName = 'opportunities' | 'profiles' | 'volunteer_signups' | 'messages' | 'feedback';
 
-// Map table names to their corresponding types
-interface TableTypes {
+// Define a record type to map table names to their corresponding types
+type DatabaseTypes = {
   'opportunities': Opportunity;
   'profiles': Profile;
   'volunteer_signups': VolunteerSignup;
@@ -18,7 +18,7 @@ interface TableTypes {
 export async function fetchData<T extends TableName>(
   table: T, 
   query: any = {}
-): Promise<TableTypes[T][]> {
+): Promise<DatabaseTypes[T][]> {
   let queryBuilder = supabase.from(table).select('*');
   
   // Apply filters if provided
@@ -47,17 +47,17 @@ export async function fetchData<T extends TableName>(
     throw error;
   }
   
-  return (data || []) as TableTypes[T][];
+  return data as DatabaseTypes[T][];
 }
 
 // Generic function to insert data into any table
 export async function insertData<T extends TableName>(
   table: T, 
-  data: Partial<TableTypes[T]>
-): Promise<TableTypes[T][]> {
+  data: Omit<DatabaseTypes[T], 'id' | 'created_at'>
+): Promise<DatabaseTypes[T][]> {
   const { data: result, error } = await supabase
     .from(table)
-    .insert(data)
+    .insert(data as any)
     .select();
   
   if (error) {
@@ -65,19 +65,19 @@ export async function insertData<T extends TableName>(
     throw error;
   }
   
-  return (result || []) as TableTypes[T][];
+  return result as DatabaseTypes[T][];
 }
 
 // Generic function to update data in any table
 export async function updateData<T extends TableName>(
   table: T, 
   id: string, 
-  data: Partial<TableTypes[T]>, 
+  data: Partial<DatabaseTypes[T]>, 
   idColumn = 'id'
-): Promise<TableTypes[T][]> {
+): Promise<DatabaseTypes[T][]> {
   const { data: result, error } = await supabase
     .from(table)
-    .update(data)
+    .update(data as any)
     .eq(idColumn, id)
     .select();
   
@@ -86,7 +86,7 @@ export async function updateData<T extends TableName>(
     throw error;
   }
   
-  return (result || []) as TableTypes[T][];
+  return result as DatabaseTypes[T][];
 }
 
 // Generic function to delete data from any table
