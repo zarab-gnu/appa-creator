@@ -50,7 +50,7 @@ export function useSupabaseAuth() {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .single();
         
       if (error) {
@@ -107,11 +107,11 @@ export function useSupabaseAuth() {
       if (error) throw error;
       
       if (data?.user) {
-        // Create a profile record in the profiles table - without created_at field
+        // Create a profile record in the profiles table
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
-            user_id: data.user.id,
+            id: data.user.id,
             name,
             email,
             user_type: userType

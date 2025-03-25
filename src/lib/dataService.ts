@@ -3,7 +3,7 @@ import { supabase } from './supabase';
 import { Profile, Opportunity, Message, Feedback, VolunteerSignup } from '@/types/database';
 
 // Generic function to fetch data from any table
-export async function fetchData(table: string, query: any = {}) {
+export async function fetchData<T>(table: 'opportunities' | 'profiles' | 'volunteer_signups' | 'messages' | 'feedback', query: any = {}) {
   let queryBuilder = supabase.from(table).select('*');
   
   // Apply filters if provided
@@ -32,11 +32,14 @@ export async function fetchData(table: string, query: any = {}) {
     throw error;
   }
   
-  return data;
+  return data as T[];
 }
 
 // Generic function to insert data into any table
-export async function insertData(table: string, data: any) {
+export async function insertData<T>(
+  table: 'opportunities' | 'profiles' | 'volunteer_signups' | 'messages' | 'feedback', 
+  data: any
+) {
   const { data: result, error } = await supabase
     .from(table)
     .insert(data)
@@ -47,11 +50,16 @@ export async function insertData(table: string, data: any) {
     throw error;
   }
   
-  return result;
+  return result as T[];
 }
 
 // Generic function to update data in any table
-export async function updateData(table: string, id: string, data: any, idColumn = 'id') {
+export async function updateData<T>(
+  table: 'opportunities' | 'profiles' | 'volunteer_signups' | 'messages' | 'feedback', 
+  id: string, 
+  data: any, 
+  idColumn = 'id'
+) {
   const { data: result, error } = await supabase
     .from(table)
     .update(data)
@@ -63,11 +71,15 @@ export async function updateData(table: string, id: string, data: any, idColumn 
     throw error;
   }
   
-  return result;
+  return result as T[];
 }
 
 // Generic function to delete data from any table
-export async function deleteData(table: string, id: string, idColumn = 'id') {
+export async function deleteData(
+  table: 'opportunities' | 'profiles' | 'volunteer_signups' | 'messages' | 'feedback', 
+  id: string, 
+  idColumn = 'id'
+) {
   const { error } = await supabase
     .from(table)
     .delete()

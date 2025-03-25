@@ -59,10 +59,23 @@ export async function saveUserResponse(userId: string, opportunityId: string, re
 
 export async function createOpportunity(opportunityData: Partial<Opportunity>) {
   try {
+    // Make sure required fields are provided
+    if (!opportunityData.title || !opportunityData.location || !opportunityData.date) {
+      throw new Error('Missing required fields: title, location, and date are required');
+    }
+    
     const { data, error } = await supabase
       .from('opportunities')
       .insert({
-        ...opportunityData,
+        title: opportunityData.title,
+        location: opportunityData.location,
+        date: opportunityData.date,
+        organization_id: opportunityData.organization_id,
+        organization_name: opportunityData.organization_name,
+        description: opportunityData.description,
+        time: opportunityData.time,
+        image_url: opportunityData.image_url,
+        skills: opportunityData.skills,
         status: 'active'
       })
       .select();
