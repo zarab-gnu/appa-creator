@@ -47,7 +47,7 @@ export async function fetchData<T extends TableName>(
     throw error;
   }
   
-  return data as DatabaseTypes[T][];
+  return (data || []) as unknown as DatabaseTypes[T][];
 }
 
 // Generic function to insert data into any table
@@ -65,7 +65,7 @@ export async function insertData<T extends TableName>(
     throw error;
   }
   
-  return result as DatabaseTypes[T][];
+  return (result || []) as unknown as DatabaseTypes[T][];
 }
 
 // Generic function to update data in any table
@@ -78,7 +78,7 @@ export async function updateData<T extends TableName>(
   const { data: result, error } = await supabase
     .from(table)
     .update(data as any)
-    .eq(idColumn, id)
+    .eq(idColumn as any, id)
     .select();
   
   if (error) {
@@ -86,7 +86,7 @@ export async function updateData<T extends TableName>(
     throw error;
   }
   
-  return result as DatabaseTypes[T][];
+  return (result || []) as unknown as DatabaseTypes[T][];
 }
 
 // Generic function to delete data from any table
@@ -98,7 +98,7 @@ export async function deleteData(
   const { error } = await supabase
     .from(table)
     .delete()
-    .eq(idColumn, id);
+    .eq(idColumn as any, id);
   
   if (error) {
     console.error(`Error deleting data from ${table}:`, error);
@@ -143,7 +143,7 @@ export async function fetchMessages(userId: string): Promise<Message[]> {
       throw error;
     }
     
-    return data as Message[];
+    return (data || []) as Message[];
   } catch (error) {
     console.error('Error in fetchMessages:', error);
     return [];
@@ -246,7 +246,7 @@ export async function fetchUserSignups(userId: string): Promise<(VolunteerSignup
       throw error;
     }
     
-    return data as unknown as (VolunteerSignup & { opportunity: Opportunity })[];
+    return (data || []) as unknown as (VolunteerSignup & { opportunity: Opportunity })[];
   } catch (error) {
     console.error('Error in fetchUserSignups:', error);
     return [];
