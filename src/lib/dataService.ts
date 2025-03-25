@@ -47,8 +47,8 @@ export async function fetchData<T extends TableName>(
     throw error;
   }
   
-  // Use type assertion with 'as' to explicitly tell TypeScript the return type
-  return data as TableTypesMap[T][];
+  // Force type assertion
+  return (data || []) as unknown as TableTypesMap[T][];
 }
 
 // Generic function to insert data into any table
@@ -66,8 +66,8 @@ export async function insertData<T extends TableName>(
     throw error;
   }
   
-  // Explicit type casting
-  return result as TableTypesMap[T][];
+  // Force type assertion
+  return (result || []) as unknown as TableTypesMap[T][];
 }
 
 // Generic function to update data in any table
@@ -88,8 +88,8 @@ export async function updateData<T extends TableName>(
     throw error;
   }
   
-  // Explicit type casting
-  return result as TableTypesMap[T][];
+  // Force type assertion
+  return (result || []) as unknown as TableTypesMap[T][];
 }
 
 // Generic function to delete data from any table
