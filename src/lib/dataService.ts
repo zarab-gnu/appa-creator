@@ -2,11 +2,11 @@
 import { supabase } from './supabase';
 import { Profile, Opportunity, Message, Feedback, VolunteerSignup } from '@/types/database';
 
-// Define table names type to avoid string literals
+// Define table names as literal types
 type TableName = 'opportunities' | 'profiles' | 'volunteer_signups' | 'messages' | 'feedback';
 
-// Define return types map for better type inference
-type TableTypes = {
+// Map table names to their corresponding types for proper type inference
+interface TableTypesMap {
   'opportunities': Opportunity;
   'profiles': Profile;
   'volunteer_signups': VolunteerSignup;
@@ -15,7 +15,10 @@ type TableTypes = {
 }
 
 // Generic function to fetch data from any table
-export async function fetchData<T extends TableName>(table: T, query: any = {}): Promise<TableTypes[T][]> {
+export async function fetchData<T extends TableName>(
+  table: T, 
+  query: any = {}
+): Promise<TableTypesMap[T][]> {
   let queryBuilder = supabase.from(table).select('*');
   
   // Apply filters if provided
@@ -44,14 +47,15 @@ export async function fetchData<T extends TableName>(table: T, query: any = {}):
     throw error;
   }
   
-  return data as TableTypes[T][];
+  // Use type assertion with 'as' to explicitly tell TypeScript the return type
+  return data as TableTypesMap[T][];
 }
 
 // Generic function to insert data into any table
 export async function insertData<T extends TableName>(
   table: T, 
   data: any
-): Promise<TableTypes[T][]> {
+): Promise<TableTypesMap[T][]> {
   const { data: result, error } = await supabase
     .from(table)
     .insert(data)
@@ -62,7 +66,8 @@ export async function insertData<T extends TableName>(
     throw error;
   }
   
-  return result as TableTypes[T][];
+  // Explicit type casting
+  return result as TableTypesMap[T][];
 }
 
 // Generic function to update data in any table
@@ -71,7 +76,7 @@ export async function updateData<T extends TableName>(
   id: string, 
   data: any, 
   idColumn = 'id'
-): Promise<TableTypes[T][]> {
+): Promise<TableTypesMap[T][]> {
   const { data: result, error } = await supabase
     .from(table)
     .update(data)
@@ -83,7 +88,8 @@ export async function updateData<T extends TableName>(
     throw error;
   }
   
-  return result as TableTypes[T][];
+  // Explicit type casting
+  return result as TableTypesMap[T][];
 }
 
 // Generic function to delete data from any table
