@@ -112,7 +112,7 @@ const OpportunityDetail = () => {
   const currentOpportunity = opportunity || opportunityDetails as unknown as Opportunity;
   
   return (
-    <MobileLayout hideNav>
+    <MobileLayout showBottomNav={false}>
       <div className="relative -mx-4 -mt-4">
         <AspectRatio ratio={16/9} className="bg-muted">
           <img 

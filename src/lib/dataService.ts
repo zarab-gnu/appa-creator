@@ -1,4 +1,3 @@
-
 import { supabase } from './supabase';
 import { Profile, Opportunity, Message, Feedback, VolunteerSignup } from '@/types/database';
 
@@ -53,7 +52,7 @@ export async function fetchData<T extends TableName>(
 // Generic function to insert data into any table
 export async function insertData<T extends TableName>(
   table: T, 
-  data: Omit<DatabaseTypes[T], 'id' | 'created_at'>
+  data: Partial<DatabaseTypes[T]>
 ): Promise<DatabaseTypes[T][]> {
   const { data: result, error } = await supabase
     .from(table)

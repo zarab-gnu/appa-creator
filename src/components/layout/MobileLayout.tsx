@@ -9,6 +9,7 @@ interface MobileLayoutProps {
   title?: string;
   showBackButton?: boolean;
   showBottomNav?: boolean;
+  hideNav?: boolean;
   headerRight?: ReactNode;
 }
 
@@ -17,6 +18,7 @@ const MobileLayout = ({
   title,
   showBackButton = false,
   showBottomNav = true,
+  hideNav = false,
   headerRight
 }: MobileLayoutProps) => {
   const navigate = useNavigate();
@@ -53,7 +55,7 @@ const MobileLayout = ({
         {children}
       </main>
       
-      {showBottomNav && <BottomNav />}
+      {showBottomNav && !hideNav && <BottomNav />}
     </div>
   );
 };

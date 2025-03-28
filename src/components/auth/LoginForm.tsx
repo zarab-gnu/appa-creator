@@ -1,110 +1,136 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 interface LoginFormProps {
-  userType: 'volunteer' | 'organizer';
+  onSuccess?: () => void;
+  onToggleForm?: () => void;
 }
 
-const loginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-});
+// Define the login form values type
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
 
-type LoginFormValues = z.infer<typeof loginSchema>;
-
-const LoginForm: React.FC<LoginFormProps> = ({ userType }) => {
-  const { signIn } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
-  
-  const onSubmit = async (values: LoginFormValues) => {
-    setIsLoading(true);
-    try {
-      const { success, error } = await signIn(values);
-      
-      if (!success) {
-        console.error('Login error:', error);
-        // Error is shown through toast from the auth context
+const LoginForm = ({ onSuccess, onToggleForm }: LoginFormProps) => {
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = 
+    useForm<LoginFormValues>({
+      defaultValues: {
+        email: '',
+        password: ''
       }
-    } catch (error) {
-      console.error('Unexpected error during login:', error);
-    } finally {
-      setIsLoading(false);
+    });
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const onSubmit = async (data: LoginFormValues) => {
+    try {
+      const { success, error } = await signIn({
+        email: data.email,
+        password: data.password
+      });
+      
+      if (success) {
+        toast({
+          title: "Login successful",
+          description: "Welcome back to VolunCheers!",
+        });
+        
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          navigate('/');
+        }
+      } else {
+        toast({
+          title: "Login failed",
+          description: error?.message || "Please check your credentials and try again.",
+          variant: "destructive"
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "An unexpected error occurred.",
+        variant: "destructive"
+      });
     }
   };
-  
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input 
-                  type="email" 
-                  placeholder="your@email.com" 
-                  autoComplete="email"
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+    <div className="space-y-6">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold">Welcome Back</h1>
+        <p className="text-muted-foreground">Login to continue your volunteering journey</p>
+      </div>
+      
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            {...register('email', { 
+              required: 'Email is required',
+              pattern: {
+                value: /^\S+@\S+$/i,
+                message: 'Invalid email address'
+              }
+            })}
+          />
+          {errors.email && (
+            <p className="text-sm text-destructive">{errors.email.message}</p>
           )}
-        />
+        </div>
         
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input 
-                  type="password" 
-                  placeholder="••••••••" 
-                  autoComplete="current-password"
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <Label htmlFor="password">Password</Label>
+            <button
+              type="button"
+              className="text-xs text-primary hover:underline"
+            >
+              Forgot password?
+            </button>
+          </div>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            {...register('password', { required: 'Password is required' })}
+          />
+          {errors.password && (
+            <p className="text-sm text-destructive">{errors.password.message}</p>
           )}
-        />
+        </div>
         
-        <Button 
-          type="submit" 
-          className="w-full"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Signing in...
-            </>
-          ) : (
-            'Sign In'
-          )}
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? 'Logging in...' : 'Login'}
         </Button>
       </form>
-    </Form>
+      
+      <div className="text-center">
+        <p className="text-sm text-muted-foreground">
+          Don't have an account?{' '}
+          <button
+            type="button"
+            className="text-primary hover:underline"
+            onClick={onToggleForm}
+          >
+            Sign up
+          </button>
+        </p>
+      </div>
+    </div>
   );
 };
 
