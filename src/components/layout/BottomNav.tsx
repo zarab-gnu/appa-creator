@@ -1,48 +1,72 @@
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Home, Calendar, MessageSquare, User, PlusCircle } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { Home, Calendar, MessageSquare, User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
-interface BottomNavProps {
-  isOrganizer?: boolean;
-}
-
-const BottomNav: React.FC<BottomNavProps> = ({ isOrganizer = false }) => {
-  const location = useLocation();
-  
-  const navItems = isOrganizer 
-    ? [
-        { icon: Home, path: '/organizer/dashboard', label: 'Dashboard' },
-        { icon: User, path: '/organizer/volunteers', label: 'Volunteers' },
-        { icon: PlusCircle, path: '/organizer/create', label: 'Create' },
-        { icon: Calendar, path: '/organizer/analytics', label: 'Analytics' },
-        { icon: MessageSquare, path: '/chat', label: 'Chat' },
-      ]
-    : [
-        { icon: Home, path: '/home', label: 'Home' },
-        { icon: Calendar, path: '/calendar', label: 'Calendar' },
-        { icon: MessageSquare, path: '/chat', label: 'Messages' },
-        { icon: User, path: '/profile', label: 'Profile' },
-      ];
+const BottomNav = () => {
+  const { userProfile } = useAuth();
+  const isOrganizer = userProfile?.user_type === 'organizer';
   
   return (
-    <nav className="bottom-nav">
-      {navItems.map((item) => {
-        const isActive = location.pathname === item.path;
+    <nav className="sticky bottom-0 border-t border-border bg-background">
+      <div className="flex justify-around">
+        <NavLink
+          to={isOrganizer ? '/organizer/dashboard' : '/home'}
+          className={({ isActive }) =>
+            `flex flex-col items-center py-2 px-4 flex-1 ${
+              isActive 
+                ? 'text-primary' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`
+          }
+        >
+          <Home className="h-5 w-5" />
+          <span className="text-xs mt-1">Home</span>
+        </NavLink>
         
-        return (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`flex flex-col items-center justify-center w-1/5 text-xs ${
-              isActive ? 'text-primary' : 'text-muted-foreground'
-            }`}
-          >
-            <item.icon className="h-5 w-5 mb-1" />
-            <span>{item.label}</span>
-          </Link>
-        );
-      })}
+        <NavLink
+          to="/calendar"
+          className={({ isActive }) =>
+            `flex flex-col items-center py-2 px-4 flex-1 ${
+              isActive 
+                ? 'text-primary' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`
+          }
+        >
+          <Calendar className="h-5 w-5" />
+          <span className="text-xs mt-1">Calendar</span>
+        </NavLink>
+        
+        <NavLink
+          to="/chat"
+          className={({ isActive }) =>
+            `flex flex-col items-center py-2 px-4 flex-1 ${
+              isActive 
+                ? 'text-primary' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`
+          }
+        >
+          <MessageSquare className="h-5 w-5" />
+          <span className="text-xs mt-1">Chat</span>
+        </NavLink>
+        
+        <NavLink
+          to="/profile"
+          className={({ isActive }) =>
+            `flex flex-col items-center py-2 px-4 flex-1 ${
+              isActive 
+                ? 'text-primary' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`
+          }
+        >
+          <User className="h-5 w-5" />
+          <span className="text-xs mt-1">Profile</span>
+        </NavLink>
+      </div>
     </nav>
   );
 };

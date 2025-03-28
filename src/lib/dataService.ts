@@ -24,7 +24,7 @@ export async function fetchData<T extends TableName>(
   // Apply filters if provided
   if (query.filters) {
     Object.entries(query.filters).forEach(([key, value]) => {
-      queryBuilder = queryBuilder.eq(key, value);
+      queryBuilder = queryBuilder.eq(key, value as any);
     });
   }
   
@@ -172,6 +172,53 @@ export async function sendMessage(senderId: string, receiverId: string, content:
     return data as Message;
   } catch (error) {
     console.error('Error in sendMessage:', error);
+    return null;
+  }
+}
+
+// Function to fetch opportunities
+export async function fetchOpportunities(filters = {}): Promise<Opportunity[]> {
+  try {
+    let query = supabase
+      .from('opportunities')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+    
+    // Apply any additional filters
+    Object.entries(filters).forEach(([key, value]) => {
+      query = query.eq(key, value as any);
+    });
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      throw error;
+    }
+    
+    return (data || []) as Opportunity[];
+  } catch (error) {
+    console.error('Error fetching opportunities:', error);
+    return [];
+  }
+}
+
+// Function to fetch a single opportunity
+export async function fetchOpportunity(id: string): Promise<Opportunity | null> {
+  try {
+    const { data, error } = await supabase
+      .from('opportunities')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data as Opportunity;
+  } catch (error) {
+    console.error('Error fetching opportunity:', error);
     return null;
   }
 }

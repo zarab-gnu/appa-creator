@@ -4,25 +4,32 @@ import { Settings, Award, LogOut, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import MobileLayout from '@/components/layout/MobileLayout';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Profile = () => {
-  // Sample profile data
+  const { userProfile, signOut } = useAuth();
+  
+  // Sample profile data (to be replaced with real data as it becomes available)
   const profile = {
-    name: 'Sarah Johnson',
-    bio: 'Passionate about helping others and making a difference in my community',
-    avatar: 'https://placehold.co/150x150?text=SJ',
+    name: userProfile?.name || 'New User',
+    bio: userProfile?.bio || 'Passionate about helping others and making a difference in my community',
+    avatar: userProfile?.profile_image_url || 'https://placehold.co/150x150?text=VC',
     stats: {
-      hours: 45,
-      events: 12,
-      streak: 3
+      hours: 0,
+      events: 0,
+      streak: 0
     },
     badges: [
       { id: 1, name: 'First Timer', icon: '🌱', description: 'Completed your first volunteer event' },
       { id: 2, name: 'Environment Hero', icon: '🌎', description: 'Participated in 5 environmental events' },
       { id: 3, name: 'Team Player', icon: '👥', description: 'Volunteered in a group event' }
     ],
-    skills: ['Teaching', 'Writing', 'Environmental Cleanup', 'Event Organization', 'Social Media'],
-    interests: ['Education', 'Environment', 'Animal Welfare', 'Community Development']
+    skills: userProfile?.skills || ['Teaching', 'Writing', 'Environmental Cleanup'],
+    interests: userProfile?.interests || ['Education', 'Environment', 'Animal Welfare']
+  };
+  
+  const handleSignOut = async () => {
+    await signOut();
   };
   
   return (
@@ -100,7 +107,11 @@ const Profile = () => {
           <ChevronRight className="h-4 w-4" />
         </Button>
         
-        <Button variant="outline" className="w-full justify-between text-destructive border-destructive/30">
+        <Button 
+          variant="outline" 
+          className="w-full justify-between text-destructive border-destructive/30"
+          onClick={handleSignOut}
+        >
           <span className="flex items-center">
             <LogOut className="h-4 w-4 mr-2" />
             Log Out

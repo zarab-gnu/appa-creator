@@ -9,6 +9,7 @@ import OpportunityCard from '@/components/ui/OpportunityCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Opportunity } from '@/types/database';
+import { fetchOpportunities } from '@/lib/dataService';
 import { supabase } from '@/lib/supabase';
 
 const Home = () => {
@@ -20,21 +21,14 @@ const Home = () => {
   const { toast } = useToast();
   
   useEffect(() => {
-    const fetchOpportunities = async () => {
+    const loadOpportunities = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('opportunities')
-          .select('*')
-          .eq('status', 'active')
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          setOpportunities(data as Opportunity[]);
+        const data = await fetchOpportunities();
+        if (data.length > 0) {
+          setOpportunities(data);
         } else {
-          // Fallback to sample data if no opportunities are found
+          // Fallback to sample data if no opportunities found
           setOpportunities(sampleOpportunities as unknown as Opportunity[]);
         }
       } catch (error) {
@@ -50,7 +44,7 @@ const Home = () => {
       }
     };
     
-    fetchOpportunities();
+    loadOpportunities();
   }, [toast]);
   
   const handleSwipeLeft = async () => {

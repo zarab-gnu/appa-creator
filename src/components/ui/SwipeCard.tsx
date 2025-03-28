@@ -1,74 +1,120 @@
 
-import React, { useState, useRef } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState, useRef, ReactNode } from 'react';
 
 interface SwipeCardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
 }
 
 const SwipeCard: React.FC<SwipeCardProps> = ({ 
   children, 
-  onSwipeLeft, 
-  onSwipeRight 
+  onSwipeLeft,
+  onSwipeRight
 }) => {
-  const [swipeDirection, setSwipeDirection] = useState<string | null>(null);
-  const startXRef = useRef(0);
+  const [startX, setStartX] = useState(0);
+  const [currentOffset, setCurrentOffset] = useState(0);
+  const [direction, setDirection] = useState<'left' | 'right' | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-
+  
   const handleTouchStart = (e: React.TouchEvent) => {
-    startXRef.current = e.touches[0].clientX;
+    setStartX(e.touches[0].clientX);
   };
-
+  
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setStartX(e.clientX);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+  
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!cardRef.current) return;
-    
     const currentX = e.touches[0].clientX;
-    const diff = currentX - startXRef.current;
-    
-    // Only allow horizontal swiping
-    cardRef.current.style.transform = `translateX(${diff}px) rotate(${diff * 0.05}deg)`;
+    const diff = currentX - startX;
+    updateCardPosition(diff);
   };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!cardRef.current) return;
+  
+  const handleMouseMove = (e: MouseEvent) => {
+    const currentX = e.clientX;
+    const diff = currentX - startX;
+    updateCardPosition(diff);
+  };
+  
+  const updateCardPosition = (diff: number) => {
+    setCurrentOffset(diff);
     
-    const currentX = e.changedTouches[0].clientX;
-    const diff = currentX - startXRef.current;
-    
-    // If swiped far enough, trigger swipe action
-    if (Math.abs(diff) > 100) {
-      if (diff > 0) {
-        setSwipeDirection('right');
-        setTimeout(() => {
-          onSwipeRight && onSwipeRight();
-        }, 300);
+    if (cardRef.current) {
+      const rotate = diff / 10;
+      cardRef.current.style.transform = `translateX(${diff}px) rotate(${rotate}deg)`;
+      
+      // Update opacity of overlays based on swipe direction
+      if (diff > 50) {
+        setDirection('right');
+      } else if (diff < -50) {
+        setDirection('left');
       } else {
-        setSwipeDirection('left');
-        setTimeout(() => {
-          onSwipeLeft && onSwipeLeft();
-        }, 300);
+        setDirection(null);
       }
-    } else {
-      // Reset position if not swiped far enough
-      cardRef.current.style.transform = '';
     }
   };
-
+  
+  const handleTouchEnd = () => {
+    finishSwipe();
+  };
+  
+  const handleMouseUp = () => {
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    finishSwipe();
+  };
+  
+  const finishSwipe = () => {
+    if (cardRef.current) {
+      if (currentOffset > 100) {
+        // Swipe right
+        cardRef.current.classList.add('swipe-right');
+        if (onSwipeRight) {
+          onSwipeRight();
+        }
+      } else if (currentOffset < -100) {
+        // Swipe left
+        cardRef.current.classList.add('swipe-left');
+        if (onSwipeLeft) {
+          onSwipeLeft();
+        }
+      } else {
+        // Return to center
+        cardRef.current.style.transform = 'translateX(0) rotate(0)';
+      }
+      
+      setCurrentOffset(0);
+      setDirection(null);
+    }
+  };
+  
   return (
-    <div 
-      ref={cardRef}
-      className={`swipe-card ${swipeDirection === 'left' ? 'swipe-left' : ''} ${swipeDirection === 'right' ? 'swipe-right' : ''}`}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
-      <Card className="opportunity-card border-0 shadow-lg">
-        <CardContent className="p-0">
-          {children}
-        </CardContent>
-      </Card>
+    <div className="swipe-card-container">
+      <div
+        ref={cardRef}
+        className="swipe-card"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+      >
+        {children}
+        
+        {direction === 'left' && (
+          <div className="absolute top-8 left-8 transform -rotate-12 bg-destructive text-destructive-foreground py-1 px-4 rounded-lg text-xl font-bold opacity-80">
+            SKIP
+          </div>
+        )}
+        
+        {direction === 'right' && (
+          <div className="absolute top-8 right-8 transform rotate-12 bg-primary text-primary-foreground py-1 px-4 rounded-lg text-xl font-bold opacity-80">
+            JOIN
+          </div>
+        )}
+      </div>
     </div>
   );
 };

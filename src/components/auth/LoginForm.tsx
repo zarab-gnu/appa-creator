@@ -1,105 +1,110 @@
 
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { AlertCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface LoginFormProps {
   userType: 'volunteer' | 'organizer';
 }
 
+const loginSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+
 const LoginForm: React.FC<LoginFormProps> = ({ userType }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
   const { signIn } = useAuth();
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+  
+  const onSubmit = async (values: LoginFormValues) => {
+    setIsLoading(true);
     try {
-      const { success, error } = await signIn({ email, password });
+      const { success, error } = await signIn(values);
       
       if (!success) {
-        setError(error?.message || 'Sign in failed. Please check your credentials.');
+        console.error('Login error:', error);
+        // Error is shown through toast from the auth context
       }
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred');
-      toast({
-        title: "Error",
-        description: err.message || 'An unexpected error occurred',
-        variant: "destructive",
-      });
+    } catch (error) {
+      console.error('Unexpected error during login:', error);
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
   
   return (
-    <Card className="w-full">
-      <CardContent className="pt-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="bg-destructive/10 p-3 rounded-md flex items-start gap-2 text-destructive">
-              <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
-              <p className="text-sm">{error}</p>
-            </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input 
+                  type="email" 
+                  placeholder="your@email.com" 
+                  autoComplete="email"
+                  {...field} 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-          
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
-              <Button variant="link" className="p-0 h-auto text-xs text-green-600" type="button">
-                Forgot Password?
-              </Button>
-            </div>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          
-          <Button 
-            type="submit" 
-            className="w-full bg-amber-500 hover:bg-amber-600 text-white" 
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Signing in...' : 'Sign In'}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+        />
+        
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input 
+                  type="password" 
+                  placeholder="••••••••" 
+                  autoComplete="current-password"
+                  {...field} 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <Button 
+          type="submit" 
+          className="w-full"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Signing in...
+            </>
+          ) : (
+            'Sign In'
+          )}
+        </Button>
+      </form>
+    </Form>
   );
 };
 

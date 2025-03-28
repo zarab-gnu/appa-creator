@@ -29,6 +29,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Set up auth listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log("Auth state changed:", event, session);
@@ -36,7 +37,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          await fetchUserProfile(session.user);
+          // Use setTimeout to avoid deadlocks with Supabase client
+          setTimeout(() => {
+            fetchUserProfile(session.user);
+          }, 0);
         } else {
           setUserProfile(null);
         }
@@ -45,13 +49,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     );
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
       console.log("Initial session check:", session);
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        await fetchUserProfile(session.user);
+        fetchUserProfile(session.user);
       }
       
       setLoading(false);
@@ -96,7 +101,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (error) throw error;
       
       if (data.user) {
-        await fetchUserProfile(data.user);
         toast({
           title: "Welcome back!",
           description: "You've successfully signed in.",

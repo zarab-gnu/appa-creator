@@ -1,96 +1,139 @@
 
-/* ... keep existing code at the top */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --background: 60 33% 98%;
-  --foreground: 150 25% 13%;
+  --primary: 141, 71%, 48%; /* green */
+  --primary-foreground: 0, 0%, 100%;
   
-  --card: 0 0% 100%;
-  --card-foreground: 150 25% 13%;
+  --secondary: 39, 100%, 57%; /* amber */
+  --secondary-foreground: 0, 0%, 20%;
   
-  --popover: 0 0% 100%;
-  --popover-foreground: 150 25% 13%;
+  --accent: 211, 100%, 60%;
+  --accent-foreground: 210 40% 96.1%;
   
-  --primary: 43 65% 52%;  /* Gold */
-  --primary-foreground: 0 0% 15%;
+  --background: 0, 0%, 100%;
+  --foreground: 240, 10%, 3.9%;
   
-  --secondary: 150 45% 25%;  /* Forest Green */
-  --secondary-foreground: 0 0% 100%;
+  --card: 0, 0%, 100%;
+  --card-foreground: 240, 10%, 3.9%;
   
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
+  --popover: 0, 0%, 100%;
+  --popover-foreground: 240, 10%, 3.9%;
   
-  --accent: 143 30% 90%;
-  --accent-foreground: 150 25% 13%;
+  --border: 240, 5.9%, 90%;
+  --input: 240, 5.9%, 90%;
   
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
+  --muted: 240, 4.8%, 95.9%;
+  --muted-foreground: 240, 3.8%, 46.1%;
   
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 43 65% 52%;  /* Gold */
-  
-  --radius: 0.5rem;
+  --destructive: 0, 84.2%, 60.2%;
+  --destructive-foreground: 0, 0%, 98%;
 }
 
 .dark {
-  --background: 150 25% 13%;  /* Forest Green */
-  --foreground: 210 40% 98%;
+  --background: 240, 10%, 3.9%;
+  --foreground: 0, 0%, 98%;
   
-  --card: 150 25% 13%;  /* Forest Green */
-  --card-foreground: 210 40% 98%;
+  --card: 240, 10%, 3.9%;
+  --card-foreground: 0, 0%, 98%;
   
-  --popover: 150 25% 13%;  /* Forest Green */
-  --popover-foreground: 210 40% 98%;
+  --popover: 240, 10%, 3.9%;
+  --popover-foreground: 0, 0%, 98%;
   
-  --primary: 43 65% 52%;  /* Gold */
-  --primary-foreground: 0 0% 15%;
+  --primary: 142, 71%, 45%;
+  --primary-foreground: 144, 10%, 10%;
   
-  --secondary: 150 45% 25%;  /* Forest Green */
-  --secondary-foreground: 210 40% 98%;
+  --secondary: 39, 100%, 57%;
+  --secondary-foreground: 39, 10%, 10%;
   
-  --muted: 150 20% 20%;
-  --muted-foreground: 217.2 32.6% 67.5%;
+  --muted: 240, 3.7%, 15.9%;
+  --muted-foreground: 240, 5%, 64.9%;
   
-  --accent: 150 30% 25%;
-  --accent-foreground: 210 40% 98%;
+  --accent: 240, 4.8%, 15.9%;
+  --accent-foreground: 0, 0%, 98%;
   
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive: 0, 62.8%, 30.6%;
+  --destructive-foreground: 0, 0%, 98%;
   
-  --border: 150 30% 25%;
-  --input: 150 30% 25%;
-  --ring: 43 65% 52%;  /* Gold */
+  --border: 240, 3.7%, 15.9%;
+  --input: 240, 3.7%, 15.9%;
 }
 
-/* Override button color default for primary action buttons */
-.btn-primary {
-  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Override button color for secondary action buttons */
-.btn-secondary {
-  @apply bg-secondary text-secondary-foreground hover:bg-secondary/90;
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--background));
 }
 
-/* Gold accent elements */
-.gold-accent {
-  @apply text-primary bg-primary/10;
+.mobile-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Forest green accent elements */
-.green-accent {
-  @apply text-secondary bg-secondary/10;
+.skill-badge {
+  display: inline-block;
+  background-color: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
-/* Card with gold gradient */
-.gold-gradient-card {
-  @apply bg-gradient-to-br from-[#D4AF37]/10 to-[#B8860B]/20;
+/* Animations */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
 }
 
-/* Card with green gradient */
-.green-gradient-card {
-  @apply bg-gradient-to-br from-[#1A472A]/10 to-[#0B3818]/20;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ... keep existing code */
+/* Swipe card animations */
+.swipe-card-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  height: 500px;
+  margin: 0 auto;
+}
+
+.swipe-card {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform-origin: center bottom;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  background-color: hsl(var(--card));
+}
+
+.swipe-left {
+  transform: translateX(-150%) rotate(-20deg);
+  opacity: 0;
+}
+
+.swipe-right {
+  transform: translateX(150%) rotate(20deg);
+  opacity: 0;
+}

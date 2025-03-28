@@ -17,13 +17,12 @@ export interface Opportunity {
 }
 
 export interface Profile {
-  id: string; // This is required and should match the user_id from auth
-  user_id?: string;
+  id: string;
   name: string;
   email?: string;
   bio?: string;
   profile_image_url?: string;
-  user_type?: 'volunteer' | 'organizer';
+  user_type: 'volunteer' | 'organizer';
   interests?: string[];
   skills?: string[];
   created_at?: string;

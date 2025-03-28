@@ -1,89 +1,103 @@
 
 import React from 'react';
-import { MapPin, Calendar, Clock } from 'lucide-react';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Opportunity } from '@/types/database';
+import { Calendar, MapPin, Clock, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Opportunity as OpportunityType } from '@/types/database';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 
 interface OpportunityCardProps {
-  opportunity: OpportunityType;
+  opportunity: Opportunity;
   onViewDetails?: () => void;
-  onSkip?: () => void;
-  onAccept?: () => void;
+  showActions?: boolean;
 }
 
 const OpportunityCard: React.FC<OpportunityCardProps> = ({ 
   opportunity, 
   onViewDetails,
-  onSkip,
-  onAccept
+  showActions = true
 }) => {
+  const { 
+    title, 
+    organization_name, 
+    location, 
+    date, 
+    time, 
+    image_url, 
+    skills 
+  } = opportunity;
+
   return (
-    <div className="flex flex-col h-full relative">
-      <AspectRatio ratio={4/3} className="bg-muted">
+    <Card className="w-full h-full overflow-hidden flex flex-col">
+      <div 
+        className="relative h-48 bg-muted w-full overflow-hidden"
+        onClick={onViewDetails}
+      >
         <img 
-          src={opportunity.image_url || 'https://placehold.co/600x400?text=Volunteer+Opportunity'} 
-          alt={opportunity.title}
-          className="object-cover w-full h-full rounded-t-2xl"
+          src={image_url || "https://placehold.co/600x400?text=Volunteer+Opportunity"} 
+          alt={title}
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-      </AspectRatio>
+        {organization_name && (
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+            <p className="text-white text-sm font-medium">{organization_name}</p>
+          </div>
+        )}
+      </div>
       
-      <div className="p-4 flex flex-col flex-grow">
-        <h3 className="text-xl font-semibold line-clamp-2">{opportunity.title}</h3>
-        <p className="text-sm text-muted-foreground mb-2">{opportunity.organization_name}</p>
-        
-        <div className="flex items-center text-sm text-muted-foreground mb-1">
-          <MapPin className="h-4 w-4 mr-1" />
-          <span className="line-clamp-1">{opportunity.location}</span>
-        </div>
-        
-        <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
-          <div className="flex items-center">
-            <Calendar className="h-4 w-4 mr-1" />
-            <span>{opportunity.date}</span>
-          </div>
-          <div className="flex items-center">
-            <Clock className="h-4 w-4 mr-1" />
-            <span>{opportunity.time}</span>
-          </div>
-        </div>
-        
-        <div className="mb-4 flex-grow">
-          <p className="text-sm mb-2 font-medium">Skills needed:</p>
-          <div className="flex flex-wrap gap-1">
-            {opportunity.skills && opportunity.skills.map((skill, index) => (
-              <span key={index} className="skill-badge">{skill}</span>
-            ))}
-          </div>
-        </div>
-        
-        <Button 
-          variant="outline" 
-          className="w-full mb-10" 
+      <CardContent className="flex-1 p-4">
+        <h3 
+          className="text-xl font-bold mb-2 line-clamp-2 cursor-pointer hover:text-primary"
           onClick={onViewDetails}
         >
-          View Details
-        </Button>
-      </div>
-      
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-        <div className="flex gap-2">
-          <button 
-            className="bg-destructive text-destructive-foreground rounded-full px-3 py-1 text-sm font-medium opacity-70 hover:opacity-100 transition-opacity"
-            onClick={onSkip}
-          >
-            Skip
-          </button>
-          <button 
-            className="bg-primary text-primary-foreground rounded-full px-3 py-1 text-sm font-medium opacity-70 hover:opacity-100 transition-opacity"
-            onClick={onAccept}
-          >
-            Accept
-          </button>
+          {title}
+        </h3>
+        
+        <div className="space-y-2 mb-3">
+          <div className="flex items-center text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4 mr-2 text-primary" />
+            <span>{location}</span>
+          </div>
+          
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Calendar className="h-4 w-4 mr-2 text-primary" />
+            <span>{date}</span>
+          </div>
+          
+          {time && (
+            <div className="flex items-center text-sm text-muted-foreground">
+              <Clock className="h-4 w-4 mr-2 text-primary" />
+              <span>{time}</span>
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+        
+        {skills && skills.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {skills.slice(0, 3).map((skill, index) => (
+              <span key={index} className="skill-badge">
+                {skill}
+              </span>
+            ))}
+            {skills.length > 3 && (
+              <span className="skill-badge">+{skills.length - 3}</span>
+            )}
+          </div>
+        )}
+      </CardContent>
+      
+      {showActions && (
+        <CardFooter className="p-4 pt-0">
+          <Button 
+            variant="outline" 
+            className="w-full justify-between"
+            onClick={onViewDetails}
+          >
+            <span>View Details</span>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </CardFooter>
+      )}
+    </Card>
   );
 };
 
