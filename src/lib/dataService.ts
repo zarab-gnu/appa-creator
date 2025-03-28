@@ -5,20 +5,11 @@ import { Profile, Opportunity, Message, Feedback, VolunteerSignup } from '@/type
 // Define table names
 type TableName = 'opportunities' | 'profiles' | 'volunteer_signups' | 'messages' | 'feedback';
 
-// Define a type mapping for each table
-type TableTypeMap = {
-  'opportunities': Opportunity;
-  'profiles': Profile;
-  'volunteer_signups': VolunteerSignup;
-  'messages': Message;
-  'feedback': Feedback;
-}
-
 // Generic function to fetch data from any table
-export async function fetchData<T extends TableName>(
-  table: T, 
+export async function fetchData<T>(
+  table: TableName, 
   query: any = {}
-): Promise<TableTypeMap[T][]> {
+): Promise<T[]> {
   let queryBuilder = supabase.from(table).select('*');
   
   // Apply filters if provided
@@ -47,14 +38,14 @@ export async function fetchData<T extends TableName>(
     throw error;
   }
   
-  return (data || []) as TableTypeMap[T][];
+  return (data || []) as T[];
 }
 
 // Generic function to insert data into any table
-export async function insertData<T extends TableName>(
-  table: T, 
-  data: Partial<TableTypeMap[T]>
-): Promise<TableTypeMap[T][]> {
+export async function insertData<T>(
+  table: TableName, 
+  data: Partial<T>
+): Promise<T[]> {
   const { data: result, error } = await supabase
     .from(table)
     .insert(data as any)
@@ -65,16 +56,16 @@ export async function insertData<T extends TableName>(
     throw error;
   }
   
-  return (result || []) as TableTypeMap[T][];
+  return (result || []) as T[];
 }
 
 // Generic function to update data in any table
-export async function updateData<T extends TableName>(
-  table: T, 
+export async function updateData<T>(
+  table: TableName, 
   id: string, 
-  data: Partial<TableTypeMap[T]>, 
+  data: Partial<T>, 
   idColumn = 'id'
-): Promise<TableTypeMap[T][]> {
+): Promise<T[]> {
   const { data: result, error } = await supabase
     .from(table)
     .update(data as any)
@@ -86,7 +77,7 @@ export async function updateData<T extends TableName>(
     throw error;
   }
   
-  return (result || []) as TableTypeMap[T][];
+  return (result || []) as T[];
 }
 
 // Generic function to delete data from any table
