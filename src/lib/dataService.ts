@@ -1,11 +1,12 @@
+
 import { supabase } from './supabase';
 import { Profile, Opportunity, Message, Feedback, VolunteerSignup } from '@/types/database';
 
 // Define table names
 type TableName = 'opportunities' | 'profiles' | 'volunteer_signups' | 'messages' | 'feedback';
 
-// Define a record type to map table names to their corresponding types
-type DatabaseTypes = {
+// Define a type mapping for each table
+type TableTypeMap = {
   'opportunities': Opportunity;
   'profiles': Profile;
   'volunteer_signups': VolunteerSignup;
@@ -17,7 +18,7 @@ type DatabaseTypes = {
 export async function fetchData<T extends TableName>(
   table: T, 
   query: any = {}
-): Promise<DatabaseTypes[T][]> {
+): Promise<TableTypeMap[T][]> {
   let queryBuilder = supabase.from(table).select('*');
   
   // Apply filters if provided
@@ -46,14 +47,14 @@ export async function fetchData<T extends TableName>(
     throw error;
   }
   
-  return (data || []) as unknown as DatabaseTypes[T][];
+  return (data || []) as TableTypeMap[T][];
 }
 
 // Generic function to insert data into any table
 export async function insertData<T extends TableName>(
   table: T, 
-  data: Partial<DatabaseTypes[T]>
-): Promise<DatabaseTypes[T][]> {
+  data: Partial<TableTypeMap[T]>
+): Promise<TableTypeMap[T][]> {
   const { data: result, error } = await supabase
     .from(table)
     .insert(data as any)
@@ -64,16 +65,16 @@ export async function insertData<T extends TableName>(
     throw error;
   }
   
-  return (result || []) as unknown as DatabaseTypes[T][];
+  return (result || []) as TableTypeMap[T][];
 }
 
 // Generic function to update data in any table
 export async function updateData<T extends TableName>(
   table: T, 
   id: string, 
-  data: Partial<DatabaseTypes[T]>, 
+  data: Partial<TableTypeMap[T]>, 
   idColumn = 'id'
-): Promise<DatabaseTypes[T][]> {
+): Promise<TableTypeMap[T][]> {
   const { data: result, error } = await supabase
     .from(table)
     .update(data as any)
@@ -85,7 +86,7 @@ export async function updateData<T extends TableName>(
     throw error;
   }
   
-  return (result || []) as unknown as DatabaseTypes[T][];
+  return (result || []) as TableTypeMap[T][];
 }
 
 // Generic function to delete data from any table

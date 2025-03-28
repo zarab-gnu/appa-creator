@@ -44,9 +44,15 @@ const Auth = () => {
       </div>
       
       {isLogin ? (
-        <LoginForm userType={userType} />
+        <LoginForm 
+          userType={userType} 
+          onToggleForm={() => setIsLogin(false)} 
+        />
       ) : (
-        <SignupForm userType={userType} setUserType={setUserType} />
+        <SignupForm 
+          userType={userType} 
+          setUserType={setUserType} 
+        />
       )}
       
       <SocialAuth />

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 interface LoginFormProps {
   onSuccess?: () => void;
   onToggleForm?: () => void;
+  userType?: 'volunteer' | 'organizer';
 }
 
 // Define the login form values type
@@ -19,7 +19,7 @@ interface LoginFormValues {
   password: string;
 }
 
-const LoginForm = ({ onSuccess, onToggleForm }: LoginFormProps) => {
+const LoginForm = ({ onSuccess, onToggleForm, userType }: LoginFormProps) => {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = 
     useForm<LoginFormValues>({
       defaultValues: {
